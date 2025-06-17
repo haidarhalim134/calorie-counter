@@ -47,20 +47,20 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
       boxH: 12 
     }];
 
-    const scanItems = result.map(itm => ScanItem.create({
-      scanId: scan.id,
-      foodName: itm.name,
-      confidence: itm.confidence,
-      boxX: itm.boxX,
-      boxY: itm.boxY,
-      boxW: itm.boxW,
-      boxH: itm.boxH 
-    }, { transaction: t }));
-
-    await Promise.all(scanItems);
+    const scanItems = await Promise.all(result.map(itm =>
+      ScanItem.create({
+        scanId: scan.id,
+        foodName: itm.name,
+        confidence: itm.confidence,
+        boxX: itm.boxX,
+        boxY: itm.boxY,
+        boxW: itm.boxW,
+        boxH: itm.boxH 
+      }, { transaction: t })
+    ));
 
     await t.commit();
-    res.status(201).json({ scan });
+    res.status(201).json({ scan, scanItems });
 
   } catch (err) {
     await t.rollback();

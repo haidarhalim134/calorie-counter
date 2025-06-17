@@ -54,12 +54,18 @@ router.get('/scans/:date', authenticateToken, async (req, res) => {
 
     const { date } = req.params;
 
+    // kedepannya scanItem tidak harus dibawa, bisa dibuat endpoint terpisah
     const log = await DayLog.findOne({
         where: { date, userId: req.user.id },
         include: [{
         model: Scan,
-        attributes: ['id', 'foodName', 'calories', 'timeEaten', 'imageId']
+        attributes: ['id', 'foodName', 'calories', 'timeEaten', 'imageId'],
+        include: [{
+            model: ScanItem,
+            as: "items",
+            attributes: ['id', 'foodName', 'confidence', 'boxX', 'boxY', 'boxW', 'boxH']
         }]
+      }]
     });
 
     if (!log) {
