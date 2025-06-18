@@ -3,11 +3,13 @@
   "dependencies": {
     "@sequelize/postgres": "^7.0.0-alpha.46",
     "@types/node": "^22.15.29",
+    "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "file-type": "^21.0.0",
+    "form-data": "^4.0.3",
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",

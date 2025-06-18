@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
+import FormData from 'form-data'
 import Storage from '../utilities/storage.js';
 import authenticateToken from '../middleware/authenticateToken.js';
 import Scan from '../models/scan.js';
@@ -9,7 +9,7 @@ import ScanItem from '../models/scanItem.js';
 import { z } from "zod";
 import { validateData } from '../middleware/validationMiddleware.js';
 import sequelize from '../utilities/db.js';
-
+import axios from 'axios'
 const router = express.Router();
 const storage = new Storage();
 const upload = multer(); 
@@ -17,14 +17,28 @@ const upload = multer();
 router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
   const t = await sequelize.transaction();
 
+  let imageId
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
+    
+    const form = new FormData();
+    form.append('image', req.file.buffer, req.file.originalname || 'upload.jpg');
 
-    // panggil service machine learning, tidak perlu simpan file kalau gagal
+    let predictionResult;
+    try {
+      const flaskRes = await axios.post('http://localhost:5000/detect', form, {
+        headers: form.getHeaders(),
+      });
 
-    const id = await storage.store(req.file.buffer);
+      predictionResult = flaskRes.data;
+    } catch (err) {
+      console.log(err)
+      return res.status(500).json({ error: 'ML service failed', detail: err });
+    }
+
+    imageId = await storage.store(req.file.buffer);
 
     const [dayLog, found] = await DayLog.findOrCreate({
       where: { date: new Date(), userId: req.user.id },
@@ -34,20 +48,11 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
     const scan = await Scan.create({
       dayLogId: dayLog.id,
       foodName: "Food Name", // placeholder
-      calories: 1,
-      imageId: id,
+      calories: predictionResult.total_calorie,
+      imageId: imageId,
     }, { transaction: t });
 
-    const result = [{
-      name: "Name",
-      confidence: 90,
-      boxX: 12,
-      boxY: 12,
-      boxW: 12,
-      boxH: 12 
-    }];
-
-    const scanItems = await Promise.all(result.map(itm =>
+    const scanItems = await Promise.all(predictionResult.items.map(itm =>
       ScanItem.create({
         scanId: scan.id,
         foodName: itm.name,
@@ -67,8 +72,8 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
 
     if (req.file) {
       try {
-        if (id)
-            await storage.delete(id); 
+        if (imageId)
+            await storage.delete(imageId); 
       } catch (e) {
         console.error("Failed to clean up image:", e);
       }
