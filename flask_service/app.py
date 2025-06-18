@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import threading
+import tempfile
 import os
 
 app = Flask(__name__)
@@ -11,7 +12,10 @@ def detect():
         return jsonify({"error": "Image file is required"}), 400
 
     image = request.files['image']
-    temp_path = f"/tmp/{image.filename}"
+    
+    tmp = tempfile.NamedTemporaryFile(delete=False)
+    temp_path = tmp.name
+    tmp.close() 
     image.save(temp_path)
 
     try:
