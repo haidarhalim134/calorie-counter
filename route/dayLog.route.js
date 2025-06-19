@@ -63,7 +63,7 @@ router.get('/scans/:date', authenticateToken, async (req, res) => {
         include: [{
             model: ScanItem,
             as: "items",
-            attributes: ['id', 'foodName', 'confidence', 'boxX', 'boxY', 'boxW', 'boxH']
+            attributes: ['id', 'foodName', 'confidence', 'x1', 'y1', 'x2', 'y2']
         }]
       }]
     });

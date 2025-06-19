@@ -23,6 +23,8 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
       return res.status(400).json({ error: 'No file uploaded' });
     }
     
+    imageId = await storage.store(req.file.buffer);
+
     const form = new FormData();
     form.append('image', req.file.buffer, req.file.originalname || 'upload.jpg');
 
@@ -37,8 +39,6 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
       console.log(err)
       return res.status(500).json({ error: 'ML service failed', detail: err });
     }
-
-    imageId = await storage.store(req.file.buffer);
 
     const [dayLog, found] = await DayLog.findOrCreate({
       where: { date: new Date(), userId: req.user.id },
@@ -57,10 +57,10 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
         scanId: scan.id,
         foodName: itm.name,
         confidence: itm.confidence,
-        boxX: itm.boxX,
-        boxY: itm.boxY,
-        boxW: itm.boxW,
-        boxH: itm.boxH 
+        x1: itm.boxX1,
+        y1: itm.boxY1,
+        x2: itm.boxX2,
+        y2: itm.boxY2 
       }, { transaction: t })
     ));
 

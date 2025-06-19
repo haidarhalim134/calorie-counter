@@ -16,19 +16,19 @@ const ScanItem = sequelize.define('ScanItem', {
     type: DataTypes.FLOAT,
     allowNull: false
   },
-  boxX: {
+  x1: {
     type: DataTypes.FLOAT,
     allowNull: false
   },
-  boxY: {
+  y1: {
     type: DataTypes.FLOAT,
     allowNull: false
   },
-  boxW: {
+  x2: {
     type: DataTypes.FLOAT,
     allowNull: false
   },
-  boxH: {
+  y2: {
     type: DataTypes.FLOAT,
     allowNull: false
   }
