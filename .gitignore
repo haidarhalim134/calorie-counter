@@ -4,3 +4,6 @@
 .env
 config/config.json
 .vercel
+
+__pycache__
+.venv
