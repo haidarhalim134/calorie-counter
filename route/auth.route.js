@@ -95,6 +95,7 @@ router.post('/login', validateData(UserLoginSchema), async (req, res) => {
             user: {
                 id: user.id,
                 email: user.email,
+                completedOnboarding: user.completedOnboarding
             },
             token
         }
