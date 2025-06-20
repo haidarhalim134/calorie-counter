@@ -30,6 +30,11 @@ router.post('/register', validateData(UserRegisterSchema), async (req, res) => {
     });
 
     if (existingUser) {
+        if (!existingUser.active) {
+            return res.status(409).json({
+                message: 'User with this username or email already exists but deactivated'
+            });
+        }
         return res.status(409).json({
             message: 'User with this username or email already exists'
         });

@@ -31,7 +31,7 @@ router.post("/setupAccount", authenticateToken, validateData(UserSetupAccountSch
 
     const user = req.user;
 
-    if (user.username)
+    if (user.completedOnboarding)
     {
         return res.status(500).json({ message: "Setup for this account is already completed" });
     }
@@ -41,6 +41,7 @@ router.post("/setupAccount", authenticateToken, validateData(UserSetupAccountSch
     user.weight = weight;
     user.activityLevel = activityLevel;
     user.dateOfBirth = dateOfBirth;
+    user.completedOnboarding = true;
     await user.save();
 
     res.status(200).json({ message: "Account setup successful" });
